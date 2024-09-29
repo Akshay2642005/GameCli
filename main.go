@@ -11,7 +11,29 @@ const (
 	PLAYER  = 69
 	WALL    = 1
 	NOTHING = 0
+
+	MAX_SAMPLES = 100
 )
+
+type stats struct {
+	start  time.Time
+	frames int
+	fps    float64
+}
+
+func newStats() *stats {
+	return &stats{
+		start: time.Now(),
+	}
+}
+
+func (s *stats) update() {
+	s.frames++
+	if s.frames == MAX_SAMPLES {
+		s.fps = float64(s.frames) / float64(time.Since(s.start).Seconds())
+		s.frames = 0
+	}
+}
 
 type level struct {
 	width, height int
@@ -53,8 +75,8 @@ func newLevel(width, height int) *level {
 type game struct {
 	isRunning bool
 	level     *level
-
-	drawBuf *bytes.Buffer
+	stats     *stats
+	drawBuf   *bytes.Buffer
 }
 
 func newGame(width, height int) *game {
